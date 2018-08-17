@@ -19,7 +19,7 @@ AHT10 软件包提供了使用温度与湿度传感器 `aht10` 基本功能，�
 | aht10.c | 传感器使用源代码 |
 | SConscript | RT-Thread 默认的构建脚本 |
 | README.md | 软件包使用说明 |
-| aht10_datasheet.pdf | 官方硬件说明 |
+| aht10_datasheet.pdf | 官方数据手册 |
 
 ### 1.2 许可证
 
