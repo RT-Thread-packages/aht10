@@ -308,8 +308,7 @@ aht10_device_t aht10_init(const char *i2c_bus_name)
     }
 
 #ifdef AHT10_USING_SOFT_FILTER
-    if (dev->period == 0)
-        dev->period = 1000; /* default */
+    dev->period = AHT10_SAMPLE_PERIOD;
 
     dev->thread = rt_thread_create("aht10", aht10_filter_entry, (void *)dev, 1024, 15, 10);
     if (dev->thread != RT_NULL)
