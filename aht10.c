@@ -94,7 +94,7 @@ static rt_uint8_t calibration_enabled(aht10_device_t dev)
 static float read_hw_temperature(aht10_device_t dev)
 {
     rt_uint8_t temp[6];
-    float cur_temp = 0.0;
+    float cur_temp = -50.0;  //The data is error with missing measurement.  
     rt_err_t result;
 
     RT_ASSERT(dev);
@@ -129,7 +129,7 @@ static float read_hw_temperature(aht10_device_t dev)
 static float read_hw_humidity(aht10_device_t dev)
 {
     rt_uint8_t temp[6];
-    float cur_humi = 0.0;
+    float cur_humi = 0.0;  //The data is error with missing measurement.  
     rt_err_t result;
 
     RT_ASSERT(dev);
