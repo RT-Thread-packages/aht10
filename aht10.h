@@ -17,9 +17,8 @@
 #include <rthw.h>
 #include <rtdevice.h>
 
-#include "drv_iic.h"
-
 #ifdef AHT10_USING_SOFT_FILTER
+
 typedef struct filter_data
 {
     float buf[AHT10_AVERAGE_TIMES];
