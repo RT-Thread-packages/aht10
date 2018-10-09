@@ -34,7 +34,7 @@ static rt_err_t write_reg(struct rt_i2c_bus_device *bus, rt_uint8_t reg, rt_uint
 {
     rt_uint8_t buf[3];
 
-    buf[0] = reg;       //cmd
+    buf[0] = reg; //cmd
     buf[1] = data[0];
     buf[2] = data[1];
 
@@ -68,7 +68,7 @@ static rt_err_t sensor_init(aht10_device_t dev)
     rt_uint8_t temp[2] = {0, 0};
 
     write_reg(dev->i2c, AHT10_NORMAL_CMD, temp);
-    rt_thread_delay(rt_tick_from_millisecond(450)); //at least 300 ms
+    rt_thread_delay(rt_tick_from_millisecond(500)); //at least 300 ms
 
     temp[0] = 0x08;
     temp[1] = 0x00;
@@ -102,17 +102,19 @@ static float read_hw_temperature(aht10_device_t dev)
     result = rt_mutex_take(dev->lock, RT_WAITING_FOREVER);
     if (result == RT_EOK)
     {
-        write_reg(dev->i2c, AHT10_GET_DATA, 0); // sample data cmd
-        read_regs(dev->i2c, 6, temp);           // get data
+        rt_uint8_t cmd[2] = {0, 0};
+        write_reg(dev->i2c, AHT10_GET_DATA, cmd); // sample data cmd
 
         result = calibration_enabled(dev);
         if (result != RT_EOK)
         {
+            rt_thread_mdelay(1500);
             sensor_init(dev); // reset sensor
             LOG_E("The aht10 is under an abnormal status. Please try again");
         }
         else
-        { 
+        {
+            read_regs(dev->i2c, 6, temp); // get data
             /*sensor temperature converse to reality */
             cur_temp = ((temp[3] & 0xf) << 16 | temp[4] << 8 | temp[5]) * 200.0 / (1 << 20) - 50;
         }
@@ -137,24 +139,25 @@ static float read_hw_humidity(aht10_device_t dev)
     result = rt_mutex_take(dev->lock, RT_WAITING_FOREVER);
     if (result == RT_EOK)
     {
-
-        write_reg(dev->i2c, AHT10_GET_DATA, 0); // sample data cmd
-        read_regs(dev->i2c, 6, temp);           // get data
+        rt_uint8_t cmd[2] = {0, 0};
+        write_reg(dev->i2c, AHT10_GET_DATA, cmd); // sample data cmd
 
         result = calibration_enabled(dev);
         if (result != RT_EOK)
         {
+            rt_thread_mdelay(1500);
             sensor_init(dev);
             LOG_E("The aht10 is under an abnormal status. Please try again");
         }
         else
         {
+            read_regs(dev->i2c, 6, temp);                                                          // get data
             cur_humi = (temp[1] << 12 | temp[2] << 4 | (temp[3] & 0xf0) >> 4) * 100.0 / (1 << 20); //sensor humidity converse to reality
         }
     }
     else
     {
-         LOG_E("The aht10 could not respond temperature measurement at this time. Please try again");
+        LOG_E("The aht10 could not respond temperature measurement at this time. Please try again");
     }
     rt_mutex_release(dev->lock);
 
@@ -381,7 +384,7 @@ void aht10(int argc, char *argv[])
                 /* read the sensor data */
                 humidity = aht10_read_humidity(dev);
                 temperature = aht10_read_temperature(dev);
-
+                
                 rt_kprintf("read aht10 sensor humidity   : %d.%d %%\n", (int)humidity, (int)(humidity * 10) % 10);
                 rt_kprintf("read aht10 sensor temperature: %d.%d \n", (int)temperature, (int)(temperature * 10) % 10);
             }
