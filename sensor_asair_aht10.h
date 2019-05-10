@@ -14,12 +14,7 @@
 #include "sensor.h"
 #include "aht10.h"
 
-#define SENSOR_TEMP_RANGE_MAX (85)
-#define SENSOR_TEMP_RANGE_MIN (-40)
-#define SENSOR_HUMI_RANGE_MAX (100)
-#define SENSOR_HUMI_RANGE_MIN (0)
-
-#define AHT10_I2C_ADDR ((void *)0x38)
+#define AHT10_I2C_ADDR 0x38
 
 int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg);
 

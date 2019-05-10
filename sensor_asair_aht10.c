@@ -14,6 +14,11 @@
 #define DBG_LVL DBG_INFO
 #include <rtdbg.h>
 
+#define SENSOR_TEMP_RANGE_MAX (85)
+#define SENSOR_TEMP_RANGE_MIN (-40)
+#define SENSOR_HUMI_RANGE_MAX (100)
+#define SENSOR_HUMI_RANGE_MIN (0)
+
 static struct aht10_device *temp_humi_dev;
 
 static rt_err_t _aht10_init(struct rt_sensor_intf *intf)
