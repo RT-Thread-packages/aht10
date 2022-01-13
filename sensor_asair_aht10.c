@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2018, RT-Thread Development Team
+ * Copyright (c) 2006-2022, RT-Thread Development Team
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -7,7 +7,7 @@
  * Date           Author       Notes
  * 2019-05-08     yangjie      the first version
  */
- 
+
 #include "sensor_asair_aht10.h"
 
 #define DBG_TAG "sensor.asair.aht10"
@@ -29,20 +29,20 @@ static rt_err_t _aht10_init(struct rt_sensor_intf *intf)
     {
         return -RT_ERROR;
     }
-    
+
     return RT_EOK;
 }
 
 static rt_size_t _aht10_polling_get_data(rt_sensor_t sensor, struct rt_sensor_data *data)
 {
     float temperature_x10, humidity_x10;
-    
+
     if (sensor->info.type == RT_SENSOR_CLASS_TEMP)
     {
         temperature_x10 = 10 * aht10_read_temperature(temp_humi_dev);
         data->data.temp = (rt_int32_t)temperature_x10;
         data->timestamp = rt_sensor_get_ts();
-    }    
+    }
     else if (sensor->info.type == RT_SENSOR_CLASS_HUMI)
     {
         humidity_x10    = 10 * aht10_read_humidity(temp_humi_dev);
@@ -81,9 +81,9 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
 {
     rt_int8_t result;
     rt_sensor_t sensor_temp = RT_NULL, sensor_humi = RT_NULL;
-    
-#ifdef PKG_USING_AHT10   
-    
+
+#ifdef PKG_USING_AHT10
+
      /* temperature sensor register */
     sensor_temp = rt_calloc(1, sizeof(struct rt_sensor_device));
     if (sensor_temp == RT_NULL)
@@ -107,7 +107,7 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
         LOG_E("device register err code: %d", result);
         goto __exit;
     }
-    
+
     /* humidity sensor register */
     sensor_humi = rt_calloc(1, sizeof(struct rt_sensor_device));
     if (sensor_humi == RT_NULL)
@@ -131,12 +131,12 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
         LOG_E("device register err code: %d", result);
         goto __exit;
     }
-    
+
 #endif
-    
+
     _aht10_init(&cfg->intf);
     return RT_EOK;
-    
+
 __exit:
     if (sensor_temp)
         rt_free(sensor_temp);
@@ -144,5 +144,5 @@ __exit:
         rt_free(sensor_humi);
     if (temp_humi_dev)
         aht10_deinit(temp_humi_dev);
-    return -RT_ERROR;     
+    return -RT_ERROR;
 }
