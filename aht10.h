@@ -12,9 +12,6 @@
 #define __AHT10_H__
 
 #include <rthw.h>
-#include <rtthread.h>
-
-#include <rthw.h>
 #include <rtdevice.h>
 
 #ifdef AHT10_USING_SOFT_FILTER
