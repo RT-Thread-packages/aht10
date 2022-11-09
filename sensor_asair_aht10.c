@@ -33,7 +33,7 @@ static rt_err_t _aht10_init(struct rt_sensor_intf *intf)
     return RT_EOK;
 }
 
-static rt_size_t _aht10_polling_get_data(rt_sensor_t sensor, struct rt_sensor_data *data)
+static rt_size_t _aht10_polling_get_data(rt_sensor_t sensor, rt_sensor_data_t data)
 {
     float temperature_x10, humidity_x10;
 
@@ -52,7 +52,7 @@ static rt_size_t _aht10_polling_get_data(rt_sensor_t sensor, struct rt_sensor_da
     return 1;
 }
 
-static rt_size_t aht10_fetch_data(struct rt_sensor_device *sensor, void *buf, rt_size_t len)
+static rt_ssize_t aht10_fetch_data(rt_sensor_t sensor, rt_sensor_data_t buf, rt_size_t len)
 {
     RT_ASSERT(buf);
 
@@ -61,12 +61,14 @@ static rt_size_t aht10_fetch_data(struct rt_sensor_device *sensor, void *buf, rt
         return _aht10_polling_get_data(sensor, buf);
     }
     else
-        return 0;
+    {
+        return -RT_EINVAL;
+    }
 }
 
-static rt_err_t aht10_control(struct rt_sensor_device *sensor, int cmd, void *args)
+static rt_err_t aht10_control(rt_sensor_t sensor, int cmd, void *args)
 {
-    rt_err_t result = RT_EOK;
+    rt_err_t result = -RT_EINVAL;
 
     return result;
 }
@@ -111,7 +113,9 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
     /* humidity sensor register */
     sensor_humi = rt_calloc(1, sizeof(struct rt_sensor_device));
     if (sensor_humi == RT_NULL)
+    {
         return -1;
+    }
 
     sensor_humi->info.type       = RT_SENSOR_CLASS_HUMI;
     sensor_humi->info.vendor     = RT_SENSOR_VENDOR_UNKNOWN;
