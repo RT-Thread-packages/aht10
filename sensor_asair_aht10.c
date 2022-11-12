@@ -92,7 +92,7 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
         return -1;
 
     sensor_temp->info.type       = RT_SENSOR_CLASS_TEMP;
-    sensor_temp->info.vendor     = RT_SENSOR_VENDOR_UNKNOWN;
+    sensor_temp->info.vendor     = RT_SENSOR_VENDOR_ASAIR;
     sensor_temp->info.model      = "aht10";
     sensor_temp->info.unit       = RT_SENSOR_UNIT_DCELSIUS;
     sensor_temp->info.intf_type  = RT_SENSOR_INTF_I2C;
@@ -118,7 +118,7 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
     }
 
     sensor_humi->info.type       = RT_SENSOR_CLASS_HUMI;
-    sensor_humi->info.vendor     = RT_SENSOR_VENDOR_UNKNOWN;
+    sensor_humi->info.vendor     = RT_SENSOR_VENDOR_ASAIR;
     sensor_humi->info.model      = "aht10";
     sensor_humi->info.unit       = RT_SENSOR_UNIT_PERMILLAGE;
     sensor_humi->info.intf_type  = RT_SENSOR_INTF_I2C;
