@@ -33,7 +33,7 @@ static rt_err_t _aht10_init(struct rt_sensor_intf *intf)
     return RT_EOK;
 }
 
-static rt_size_t _aht10_polling_get_data(rt_sensor_t sensor, rt_sensor_data_t data)
+static rt_ssize_t _aht10_polling_get_data(rt_sensor_t sensor, rt_sensor_data_t data)
 {
     float temperature_x10, humidity_x10;
 
@@ -42,14 +42,19 @@ static rt_size_t _aht10_polling_get_data(rt_sensor_t sensor, rt_sensor_data_t da
         temperature_x10 = 10 * aht10_read_temperature(temp_humi_dev);
         data->data.temp = (rt_int32_t)temperature_x10;
         data->timestamp = rt_sensor_get_ts();
+        return 1;
     }
     else if (sensor->info.type == RT_SENSOR_CLASS_HUMI)
     {
         humidity_x10    = 10 * aht10_read_humidity(temp_humi_dev);
         data->data.humi = (rt_int32_t)humidity_x10;
         data->timestamp = rt_sensor_get_ts();
+        return 1;
     }
-    return 1;
+    else
+    {
+        return -RT_EINVAL;
+    }
 }
 
 static rt_ssize_t aht10_fetch_data(rt_sensor_t sensor, rt_sensor_data_t buf, rt_size_t len)
