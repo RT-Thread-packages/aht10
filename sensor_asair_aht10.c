@@ -85,8 +85,6 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
     rt_int8_t result;
     rt_sensor_t sensor_temp = RT_NULL, sensor_humi = RT_NULL;
 
-#ifdef PKG_USING_AHT10
-
      /* temperature sensor register */
     sensor_temp = rt_calloc(1, sizeof(struct rt_sensor_device));
     if (sensor_temp == RT_NULL)
@@ -136,8 +134,6 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
         LOG_E("device register err code: %d", result);
         goto __exit;
     }
-
-#endif
 
     _aht10_init(&cfg->intf);
     return RT_EOK;
