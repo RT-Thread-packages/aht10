@@ -93,7 +93,7 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
     sensor_temp->info.type       = RT_SENSOR_CLASS_TEMP;
     sensor_temp->info.vendor     = RT_SENSOR_VENDOR_ASAIR;
     sensor_temp->info.model      = "aht10";
-    sensor_temp->info.unit       = RT_SENSOR_UNIT_DCELSIUS;
+    sensor_temp->info.unit       = RT_SENSOR_UNIT_CELSIUS;
     sensor_temp->info.intf_type  = RT_SENSOR_INTF_I2C;
     sensor_temp->info.range_max  = SENSOR_TEMP_RANGE_MAX;
     sensor_temp->info.range_min  = SENSOR_TEMP_RANGE_MIN;
@@ -119,7 +119,7 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
     sensor_humi->info.type       = RT_SENSOR_CLASS_HUMI;
     sensor_humi->info.vendor     = RT_SENSOR_VENDOR_ASAIR;
     sensor_humi->info.model      = "aht10";
-    sensor_humi->info.unit       = RT_SENSOR_UNIT_PERMILLAGE;
+    sensor_humi->info.unit       = RT_SENSOR_UNIT_PERCENTAGE;
     sensor_humi->info.intf_type  = RT_SENSOR_INTF_I2C;
     sensor_humi->info.range_max  = SENSOR_HUMI_RANGE_MAX;
     sensor_humi->info.range_min  = SENSOR_HUMI_RANGE_MIN;
