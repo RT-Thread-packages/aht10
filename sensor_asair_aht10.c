@@ -147,3 +147,17 @@ __exit:
         aht10_deinit(temp_humi_dev);
     return -RT_ERROR;
 }
+
+int aht10_port(void)
+{
+    struct rt_sensor_config cfg;
+
+    cfg.intf.dev_name = "i2c1";
+    cfg.intf.arg = (void *)AHT10_ADDR;
+    cfg.irq_pin.pin = RT_PIN_NONE;
+
+    rt_hw_aht10_init("aht10", &cfg);
+
+    return 0;
+}
+INIT_APP_EXPORT(aht10_port);
