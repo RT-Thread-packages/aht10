@@ -21,9 +21,9 @@
 
 static struct aht10_device *temp_humi_dev;
 
-static rt_err_t _aht10_init(struct rt_sensor_intf *intf)
+static rt_err_t _aht10_init(rt_sensor_t sensor)
 {
-    temp_humi_dev = aht10_init(intf->dev_name);
+    temp_humi_dev = aht10_init(sensor->config.intf.com_dev_name);
 
     if (temp_humi_dev == RT_NULL)
     {
@@ -35,13 +35,13 @@ static rt_err_t _aht10_init(struct rt_sensor_intf *intf)
 
 static rt_ssize_t _aht10_polling_get_data(rt_sensor_t sensor, rt_sensor_data_t data)
 {
-    if (sensor->info.type == RT_SENSOR_CLASS_TEMP)
+    if (sensor->info.type == RT_SENSOR_TYPE_TEMP)
     {
         data->data.temp = aht10_read_temperature(temp_humi_dev);
         data->timestamp = rt_sensor_get_ts();
         return 1;
     }
-    else if (sensor->info.type == RT_SENSOR_CLASS_HUMI)
+    else if (sensor->info.type == RT_SENSOR_TYPE_HUMI)
     {
         data->data.humi = aht10_read_humidity(temp_humi_dev);
         data->timestamp = rt_sensor_get_ts();
@@ -57,7 +57,7 @@ static rt_ssize_t aht10_fetch_data(rt_sensor_t sensor, rt_sensor_data_t buf, rt_
 {
     RT_ASSERT(buf);
 
-    if (sensor->config.mode == RT_SENSOR_MODE_POLLING)
+    if (sensor->config.fetch_mode == RT_SENSOR_FETCH_POLLING)
     {
         return _aht10_polling_get_data(sensor, buf);
     }
@@ -80,6 +80,8 @@ static struct rt_sensor_ops sensor_ops =
     aht10_control
 };
 
+static const char *device_name = "aht10";
+
 int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
 {
     rt_int8_t result;
@@ -88,19 +90,27 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
      /* temperature sensor register */
     sensor_temp = rt_calloc(1, sizeof(struct rt_sensor_device));
     if (sensor_temp == RT_NULL)
+    {
         return -1;
+    }
 
-    sensor_temp->info.type       = RT_SENSOR_CLASS_TEMP;
-    sensor_temp->info.vendor     = RT_SENSOR_VENDOR_ASAIR;
-    sensor_temp->info.model      = "aht10";
-    sensor_temp->info.unit       = RT_SENSOR_UNIT_CELSIUS;
-    sensor_temp->info.intf_type  = RT_SENSOR_INTF_I2C;
-    sensor_temp->info.range_max  = SENSOR_TEMP_RANGE_MAX;
-    sensor_temp->info.range_min  = SENSOR_TEMP_RANGE_MIN;
-    sensor_temp->info.period_min = 5;
+    /* clear struct rt_sensor_device */
+    rt_memset(sensor_temp, RT_NULL, sizeof(struct rt_sensor_device));
+
+    sensor_temp->info.type         = RT_SENSOR_TYPE_TEMP;
+    sensor_temp->info.vendor       = RT_SENSOR_VENDOR_ASAIR;
+    sensor_temp->info.name         = device_name;
+    sensor_temp->info.unit         = RT_SENSOR_UNIT_CELSIUS;
+    sensor_temp->info.intf_type    = RT_SENSOR_INTF_I2C;
 
     rt_memcpy(&sensor_temp->config, cfg, sizeof(struct rt_sensor_config));
     sensor_temp->ops = &sensor_ops;
+
+    sensor_temp->config.range_max = SENSOR_TEMP_RANGE_MAX;
+    sensor_temp->config.range_min = SENSOR_TEMP_RANGE_MIN;
+    sensor_temp->config.resolution = 0.01;
+    sensor_humi->config.error = 0.3;
+    sensor_temp->config.period_min = 2000;
 
     result = rt_hw_sensor_register(sensor_temp, name, RT_DEVICE_FLAG_RDONLY, RT_NULL);
     if (result != RT_EOK)
@@ -116,17 +126,23 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
         return -1;
     }
 
-    sensor_humi->info.type       = RT_SENSOR_CLASS_HUMI;
+    /* clear struct rt_sensor_device */
+    rt_memset(sensor_humi, RT_NULL, sizeof(struct rt_sensor_device));
+
+    sensor_humi->info.type       = RT_SENSOR_TYPE_HUMI;
     sensor_humi->info.vendor     = RT_SENSOR_VENDOR_ASAIR;
-    sensor_humi->info.model      = "aht10";
+    sensor_humi->info.name       = device_name;
     sensor_humi->info.unit       = RT_SENSOR_UNIT_PERCENTAGE;
     sensor_humi->info.intf_type  = RT_SENSOR_INTF_I2C;
-    sensor_humi->info.range_max  = SENSOR_HUMI_RANGE_MAX;
-    sensor_humi->info.range_min  = SENSOR_HUMI_RANGE_MIN;
-    sensor_humi->info.period_min = 5;
 
     rt_memcpy(&sensor_humi->config, cfg, sizeof(struct rt_sensor_config));
     sensor_humi->ops = &sensor_ops;
+
+    sensor_humi->config.range_max = SENSOR_HUMI_RANGE_MAX;
+    sensor_humi->config.range_min = SENSOR_HUMI_RANGE_MIN;
+    sensor_humi->config.resolution = 0.024;
+    sensor_humi->config.error = 2;
+    sensor_humi->config.period_min = 2000;
 
     result = rt_hw_sensor_register(sensor_humi, name, RT_DEVICE_FLAG_RDONLY, RT_NULL);
     if (result != RT_EOK)
@@ -135,7 +151,7 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
         goto __exit;
     }
 
-    _aht10_init(&cfg->intf);
+    _aht10_init(sensor_humi);
     return RT_EOK;
 
 __exit:
