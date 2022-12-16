@@ -14,11 +14,6 @@
 #define DBG_LVL DBG_INFO
 #include <rtdbg.h>
 
-#define SENSOR_TEMP_RANGE_MAX (85)
-#define SENSOR_TEMP_RANGE_MIN (-40)
-#define SENSOR_HUMI_RANGE_MAX (100)
-#define SENSOR_HUMI_RANGE_MIN (0)
-
 static struct aht10_device *temp_humi_dev;
 
 static rt_err_t _aht10_init(struct rt_sensor_intf *intf)
@@ -35,13 +30,13 @@ static rt_err_t _aht10_init(struct rt_sensor_intf *intf)
 
 static rt_ssize_t _aht10_polling_get_data(rt_sensor_t sensor, rt_sensor_data_t data)
 {
-    if (sensor->info.type == RT_SENSOR_CLASS_TEMP)
+    if (sensor->info.type == RT_SENSOR_TYPE_TEMP)
     {
         data->data.temp = aht10_read_temperature(temp_humi_dev);
         data->timestamp = rt_sensor_get_ts();
         return 1;
     }
-    else if (sensor->info.type == RT_SENSOR_CLASS_HUMI)
+    else if (sensor->info.type == RT_SENSOR_TYPE_HUMI)
     {
         data->data.humi = aht10_read_humidity(temp_humi_dev);
         data->timestamp = rt_sensor_get_ts();
@@ -57,7 +52,7 @@ static rt_ssize_t aht10_fetch_data(rt_sensor_t sensor, rt_sensor_data_t buf, rt_
 {
     RT_ASSERT(buf);
 
-    if (sensor->config.mode == RT_SENSOR_MODE_POLLING)
+    if (RT_SENSOR_MODE_GET_FETCH(sensor->info.mode) == RT_SENSOR_MODE_FETCH_POLLING)
     {
         return _aht10_polling_get_data(sensor, buf);
     }
@@ -70,7 +65,6 @@ static rt_ssize_t aht10_fetch_data(rt_sensor_t sensor, rt_sensor_data_t buf, rt_
 static rt_err_t aht10_control(rt_sensor_t sensor, int cmd, void *args)
 {
     rt_err_t result = -RT_EINVAL;
-
     return result;
 }
 
@@ -90,14 +84,17 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
     if (sensor_temp == RT_NULL)
         return -1;
 
-    sensor_temp->info.type       = RT_SENSOR_CLASS_TEMP;
+    sensor_temp->info.type       = RT_SENSOR_TYPE_TEMP;
     sensor_temp->info.vendor     = RT_SENSOR_VENDOR_ASAIR;
-    sensor_temp->info.model      = "aht10";
+    sensor_temp->info.name       = "aht10";
     sensor_temp->info.unit       = RT_SENSOR_UNIT_CELSIUS;
     sensor_temp->info.intf_type  = RT_SENSOR_INTF_I2C;
-    sensor_temp->info.range_max  = SENSOR_TEMP_RANGE_MAX;
-    sensor_temp->info.range_min  = SENSOR_TEMP_RANGE_MIN;
-    sensor_temp->info.period_min = 5;
+
+    sensor_temp->info.acquire_min = 1000;
+    sensor_temp->info.accuracy.resolution = 0.01;
+    sensor_temp->info.accuracy.error = 0.3;
+    sensor_temp->info.scale.range_min = -40.0;
+    sensor_temp->info.scale.range_max = 85.0;
 
     rt_memcpy(&sensor_temp->config, cfg, sizeof(struct rt_sensor_config));
     sensor_temp->ops = &sensor_ops;
@@ -116,14 +113,17 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
         return -1;
     }
 
-    sensor_humi->info.type       = RT_SENSOR_CLASS_HUMI;
+    sensor_humi->info.type       = RT_SENSOR_TYPE_HUMI;
     sensor_humi->info.vendor     = RT_SENSOR_VENDOR_ASAIR;
-    sensor_humi->info.model      = "aht10";
+    sensor_humi->info.name      = "aht10";
     sensor_humi->info.unit       = RT_SENSOR_UNIT_PERCENTAGE;
     sensor_humi->info.intf_type  = RT_SENSOR_INTF_I2C;
-    sensor_humi->info.range_max  = SENSOR_HUMI_RANGE_MAX;
-    sensor_humi->info.range_min  = SENSOR_HUMI_RANGE_MIN;
-    sensor_humi->info.period_min = 5;
+
+    sensor_humi->info.acquire_min = 1000;
+    sensor_humi->info.accuracy.resolution = 0.024;
+    sensor_humi->info.accuracy.error = 2.0;
+    sensor_humi->info.scale.range_min = 0.0;
+    sensor_humi->info.scale.range_max = 100.0;
 
     rt_memcpy(&sensor_humi->config, cfg, sizeof(struct rt_sensor_config));
     sensor_humi->ops = &sensor_ops;
