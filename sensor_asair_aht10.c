@@ -74,6 +74,8 @@ static struct rt_sensor_ops sensor_ops =
     aht10_control
 };
 
+static const char *sensor_name = "aht10";
+
 int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
 {
     rt_int8_t result;
@@ -86,7 +88,7 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
 
     sensor_temp->info.type       = RT_SENSOR_TYPE_TEMP;
     sensor_temp->info.vendor     = RT_SENSOR_VENDOR_ASAIR;
-    sensor_temp->info.name       = "aht10";
+    sensor_temp->info.name       = sensor_name;
     sensor_temp->info.unit       = RT_SENSOR_UNIT_CELSIUS;
     sensor_temp->info.intf_type  = RT_SENSOR_INTF_I2C;
 
@@ -115,7 +117,7 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
 
     sensor_humi->info.type       = RT_SENSOR_TYPE_HUMI;
     sensor_humi->info.vendor     = RT_SENSOR_VENDOR_ASAIR;
-    sensor_humi->info.name      = "aht10";
+    sensor_humi->info.name       = sensor_name;
     sensor_humi->info.unit       = RT_SENSOR_UNIT_PERCENTAGE;
     sensor_humi->info.intf_type  = RT_SENSOR_INTF_I2C;
 
