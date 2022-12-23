@@ -81,6 +81,12 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
     rt_int8_t result;
     rt_sensor_t sensor_temp = RT_NULL, sensor_humi = RT_NULL;
 
+    if (_aht10_init(&cfg->intf) != RT_EOK)
+    {
+        LOG_E("aht10 init failure!");
+        return -1;
+    }
+
      /* temperature sensor register */
     sensor_temp = rt_calloc(1, sizeof(struct rt_sensor_device));
     if (sensor_temp == RT_NULL)
@@ -137,7 +143,6 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
         goto __exit;
     }
 
-    _aht10_init(&cfg->intf);
     return RT_EOK;
 
 __exit:
