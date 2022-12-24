@@ -14,31 +14,19 @@
 #define DBG_LVL DBG_INFO
 #include <rtdbg.h>
 
-static struct aht10_device *temp_humi_dev;
-
-static rt_err_t _aht10_init(struct rt_sensor_intf *intf)
-{
-    temp_humi_dev = aht10_init(intf->dev_name);
-
-    if (temp_humi_dev == RT_NULL)
-    {
-        return -RT_ERROR;
-    }
-
-    return RT_EOK;
-}
-
 static rt_ssize_t _aht10_polling_get_data(rt_sensor_t sensor, rt_sensor_data_t data)
 {
+    struct aht10_device *aht10_dev = (struct aht10_device *)sensor->parent.user_data;
+
     if (sensor->info.type == RT_SENSOR_TYPE_TEMP)
     {
-        data->data.temp = aht10_read_temperature(temp_humi_dev);
+        data->data.temp = aht10_read_temperature(aht10_dev);
         data->timestamp = rt_sensor_get_ts();
         return 1;
     }
     else if (sensor->info.type == RT_SENSOR_TYPE_HUMI)
     {
-        data->data.humi = aht10_read_humidity(temp_humi_dev);
+        data->data.humi = aht10_read_humidity(aht10_dev);
         data->timestamp = rt_sensor_get_ts();
         return 1;
     }
@@ -80,8 +68,8 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
 {
     rt_int8_t result;
     rt_sensor_t sensor_temp = RT_NULL, sensor_humi = RT_NULL;
-
-    if (_aht10_init(&cfg->intf) != RT_EOK)
+    struct aht10_device *aht10_dev = aht10_init(cfg->intf.dev_name);
+    if (aht10_dev == RT_NULL)
     {
         LOG_E("aht10 init failure!");
         return -1;
@@ -107,7 +95,7 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
     rt_memcpy(&sensor_temp->config, cfg, sizeof(struct rt_sensor_config));
     sensor_temp->ops = &sensor_ops;
 
-    result = rt_hw_sensor_register(sensor_temp, name, RT_DEVICE_FLAG_RDONLY, RT_NULL);
+    result = rt_hw_sensor_register(sensor_temp, name, RT_DEVICE_FLAG_RDONLY, aht10_dev);
     if (result != RT_EOK)
     {
         LOG_E("device register err code: %d", result);
@@ -136,7 +124,7 @@ int rt_hw_aht10_init(const char *name, struct rt_sensor_config *cfg)
     rt_memcpy(&sensor_humi->config, cfg, sizeof(struct rt_sensor_config));
     sensor_humi->ops = &sensor_ops;
 
-    result = rt_hw_sensor_register(sensor_humi, name, RT_DEVICE_FLAG_RDONLY, RT_NULL);
+    result = rt_hw_sensor_register(sensor_humi, name, RT_DEVICE_FLAG_RDONLY, aht10_dev);
     if (result != RT_EOK)
     {
         LOG_E("device register err code: %d", result);
@@ -150,7 +138,7 @@ __exit:
         rt_free(sensor_temp);
     if (sensor_humi)
         rt_free(sensor_humi);
-    if (temp_humi_dev)
-        aht10_deinit(temp_humi_dev);
+    if (aht10_dev)
+        aht10_deinit(aht10_dev);
     return -RT_ERROR;
 }
