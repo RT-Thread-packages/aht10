@@ -14,10 +14,8 @@
 
 #include <string.h>
 
-#define DBG_ENABLE
-#define DBG_SECTION_NAME "AHT10"
-#define DBG_LEVEL DBG_LOG
-#define DBG_COLOR
+#define DBG_TAG "aht10"
+#define DBG_LVL DBG_INFO
 #include <rtdbg.h>
 
 #include "aht10.h"
@@ -151,7 +149,7 @@ static float read_hw_humidity(aht10_device_t dev)
         }
         else
         {
-            read_regs(dev->i2c, 6, temp);                                                          // get data
+            read_regs(dev->i2c, 6, temp); // get data
             cur_humi = (temp[1] << 12 | temp[2] << 4 | (temp[3] & 0xf0) >> 4) * 100.0 / (1 << 20); //sensor humidity converse to reality
         }
     }
