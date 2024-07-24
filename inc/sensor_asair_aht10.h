@@ -12,6 +12,9 @@
 #define SENSOR_ASSIR_AHT10_H__
 
 #include "aht10.h"
+#if defined(PKG_AHT10_USING_SENSOR_V2)
+#include "drivers/sensor_v2.h"
+#endif
 
 #define AHT10_I2C_ADDR 0x38
 
